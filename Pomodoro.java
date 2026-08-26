@@ -6,70 +6,68 @@ import java.awt.Color;
 public class Pomodoro {
 
     private int secondsLeft;
-    private int focusMinutes;
-    //private int breakMinutes;
     private JLabel timeLeft;
     private int minutes;
     private int seconds;
-    //private boolean breakOn;
+    private int status; //1: pomodoro, 2: break, 3: long break
     private Timer timer;
 
     private JButton startButton;
+    private JButton resumeButton;
     private JButton pauseButton;
     private JButton resetButton;
 
     private JPanel panel;
     private JLabel statusLabel;
-    //private int breakDuration;
-    //private int pomodoroDuration;
     private JComboBox <Integer> focusBox;
-    //private JComboBox <Integer> breakBox;
+    private JComboBox <Integer> breakBox;
 
     private File chime = new File("chime-audio.wav");
     private File notif = new File("notif-sound.wav");
 
     public Pomodoro(){
+        
         //setting up the display
         JFrame frame = new JFrame("Pomodoro Timer");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         panel = new JPanel();
+        statusLabel = new JLabel(); //text shows whether it is pomodoro or break time
+        timeLeft = new JLabel();
 
         //Drop down menus
         Integer [] focusOptions = {1, 15, 20, 25, 30, 45};
         focusBox = new JComboBox<>(focusOptions);
+        focusBox.addActionListener(e-> reset());
 
-        focusMinutes = (Integer) focusBox.getSelectedItem();
-        secondsLeft = focusMinutes * 60;
+        Integer [] breakOptions = {2, 5, 8, 10, 15};
+        breakBox = new JComboBox<>(breakOptions);
+        breakBox.addActionListener(e-> reset());
 
-        //Integer [] breakOptions = {2, 5, 8, 10, 15};
-        //breakBox = new JComboBox<>(breakOptions);
-        //TODO create a starting mode
-
-        focusBox.addActionListener(e->{
-            reset();
-        });
-
-        statusLabel = new JLabel(); //text shows whether it is pomodoro or break time
-        timeLeft = new JLabel();
-
+        secondsLeft = (Integer) focusBox.getSelectedItem() * 60;
+        
         //buttons
         startButton = new JButton("Start");
+        resumeButton = new JButton("resume");
         pauseButton = new JButton("Pause");
         resetButton = new JButton("Reset");
 
-        startButton.addActionListener(e ->{ //on start click, text "pomodoro"
+        startButton.addActionListener(e ->{ 
             panel.setBackground(Color.decode("#883131"));
-            if (secondsLeft == focusMinutes * 60)
-                playSound(chime);
             startPomodoro();
-            //pomodoroLoop();
             startButton.setVisible(false);
+            timer.start();
+        });
+
+        resumeButton.addActionListener(e->{
+            pauseButton.setVisible(true);
+            resumeButton.setVisible(false);
+            timer.start();
         });
 
         pauseButton.addActionListener(e ->{ //pause button function
             timer.stop();
             pauseButton.setVisible(false);
-            startButton.setVisible(true);
+            resumeButton.setVisible(true);
         });
 
         resetButton.addActionListener(e -> reset());
@@ -77,12 +75,14 @@ public class Pomodoro {
         panel.add(statusLabel);
         panel.add(timeLeft);
         panel.add(startButton);
+        panel.add(resumeButton);
         panel.add(pauseButton);
         panel.add(resetButton);
         panel.add (focusBox);
-        //panel.add(breakBox);
+        panel.add(breakBox);
 
         resetButton.setVisible(false);
+        resumeButton.setVisible(false);
 
         frame.add(panel);
 
@@ -91,13 +91,24 @@ public class Pomodoro {
         panel.setBackground(Color.decode("#BD968E"));
         frame.setVisible(true);
 
-        timer = new Timer(1000, event ->{
-            if (secondsLeft<0)
+        timer = new Timer(100, event ->{
+            if (secondsLeft == 0){
+                switch (status){
+                    case 1:
+                        startBreak();
+                        break;
+                    case 2:
+                        secondsLeft = (Integer) focusBox.getSelectedItem() * 60;
+                        startPomodoro();
+                        break;
+                    case 3:
+                        System.out.println("long break");
+                        break;
+                        //TODO case of long break
+                }
                 return;
-
+            }
             displayTime();
-
-            System.out.println(secondsLeft);
             secondsLeft--;
         });
     }
@@ -115,16 +126,19 @@ public class Pomodoro {
     }
 
     public void startPomodoro(){
+        status = 1;
+        playSound(chime);
         statusLabel.setText("Pomodoro");
         pauseButton.setVisible(true);
         resetButton.setVisible(true);
-        if (secondsLeft == focusMinutes)
-            playSound(chime);
-        timer.start();
+        secondsLeft = (Integer) focusBox.getSelectedItem() * 60;
     }
 
-    public void startBreak(int secondsLeft){
-
+    public void startBreak(){
+        status = 2;
+        statusLabel.setText("Break");
+        playSound(notif);
+        secondsLeft = (Integer) breakBox.getSelectedItem() * 60;
     }
 
     public void displayTime(){
@@ -135,9 +149,10 @@ public class Pomodoro {
 
     public void reset(){
         timer.stop();
-        focusMinutes = (Integer) focusBox.getSelectedItem();
-        secondsLeft = focusMinutes * 60;
+        //reset the focus time
+        secondsLeft = (Integer) focusBox.getSelectedItem() * 60;
         displayTime();
+        
         startButton.setVisible(true);
         pauseButton.setVisible(false);
         panel.setBackground(Color.decode("#BD968E"));
