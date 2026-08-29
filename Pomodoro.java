@@ -31,6 +31,7 @@ public class Pomodoro {
 
     private File chime = new File("chime-audio.wav");
     private File notif = new File("notif-sound.wav");
+    private File success = new File("success.wav");
 
     public Pomodoro(){
         
@@ -147,7 +148,7 @@ public class Pomodoro {
         
 
         frame.setSize(400, 240);
-        mainPanel.setBackground(Color.decode("#848d94"));
+        mainPanel.setBackground(Color.decode("#99AABD"));
         frame.add(mainPanel);
         frame.setResizable(false);
         frame.setLocationRelativeTo(null);
@@ -172,7 +173,7 @@ public class Pomodoro {
         secondsLeft = (Integer) focusBox.getSelectedItem() * 60;
         displayTime();
         playSound(chime);
-        mainPanel.setBackground(Color.decode("#9d6161"));
+        mainPanel.setBackground(Color.decode("#F0785D"));
         pauseButton.setVisible(true);
         resetButton.setVisible(true);
     }
@@ -182,16 +183,17 @@ public class Pomodoro {
         statusLabel.setText("Break");
         playSound(notif);
         secondsLeft = (Integer) breakBox.getSelectedItem() * 60;
-        mainPanel.setBackground(Color.decode("#818a80"));
+        mainPanel.setBackground(Color.decode("#82B378"));
         displayTime();
     }
 
     public void startLong(){
         statusLabel.setText("Long Break");
         secondsLeft = (Integer) longBox.getSelectedItem() * 60;
-        mainPanel.setBackground(Color.decode("#8b93a3"));
+        mainPanel.setBackground(Color.decode("#9FA2D1"));
         status = 1;
         displayTime();
+        playSound(success);
     }
 
     public void reset(){
@@ -202,7 +204,7 @@ public class Pomodoro {
         startButton.setVisible(true);
         pauseButton.setVisible(false);
         resumeButton.setVisible(false);
-        mainPanel.setBackground(Color.decode("#848d94"));
+        mainPanel.setBackground(Color.decode("#99AABD"));
         displayTime();
         statusLabel.setText(" ");
     }
