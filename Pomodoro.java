@@ -2,7 +2,6 @@ import javax.swing.*;
 import java.awt.Font;
 
 import javax.sound.sampled.*;
-import java.io.File;
 import java.awt.Color;
 
 public class Pomodoro {
@@ -29,9 +28,9 @@ public class Pomodoro {
     private JComboBox <Integer> breakBox;
     private JComboBox <Integer> longBox;
 
-    private File chime = new File("chime-audio.wav");
-    private File notif = new File("notif-sound.wav");
-    private File success = new File("success.wav");
+    private String chime = "/chime-audio.wav";
+    private String notif = "/notif-sound.wav";
+    private String success = "/success.wav";
 
     public Pomodoro(){
         
@@ -215,15 +214,20 @@ public class Pomodoro {
         timeLabel.setText(String.format("%02d:%02d", minutes, seconds));
     }
 
-    public void playSound(File sound){
-        try{
-            AudioInputStream audioStream = AudioSystem.getAudioInputStream(sound);
+    public void playSound(String sound) {
+    new Thread(() -> {
+        try {
+            AudioInputStream audioStream =
+                AudioSystem.getAudioInputStream(
+                    Pomodoro.class.getResource(sound)
+                );
+
             Clip clip = AudioSystem.getClip();
             clip.open(audioStream);
             clip.start();
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
-    }
+    }).start();
+}
 }
