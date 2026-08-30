@@ -29,9 +29,9 @@ public class Pomodoro {
     private JComboBox<Integer> breakBox;
     private JComboBox<Integer> longBox;
 
-    private String chime = "/chime-audio.wav";
-    private String notif = "/notif-sound.wav";
-    private String success = "/success.wav";
+    private String pomodoroAudio = "/chime-audio.wav";
+    private String breakAudio = "/notif-sound.wav";
+    private String longBreakAudio = "/long-break-notif.wav";
 
     public Pomodoro() {
 
@@ -51,7 +51,7 @@ public class Pomodoro {
         mainPanel.add(statusLabel);
 
         // --------- time label ---------
-        timeLabel = new JLabel("10:00");
+        timeLabel = new JLabel("25:00");
         timeLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
         timeLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
         timeLabel.setFont(new Font("Georgia", Font.PLAIN, 80));
@@ -127,10 +127,12 @@ public class Pomodoro {
         // ************ Drop down menus ****************
         Integer[] focusOptions = { 10, 15, 20, 25, 30, 45, 60 };
         focusBox = new JComboBox<>(focusOptions);
+        focusBox.setSelectedIndex(3);
         focusBox.addActionListener(e -> reset());
 
         Integer[] breakOptions = { 3, 5, 7, 10, 15, 20 };
         breakBox = new JComboBox<>(breakOptions);
+        breakBox.setSelectedIndex(1);
         breakBox.addActionListener(e -> reset());
 
         Integer[] longOptions = { 10, 15, 20, 25, 30 };
@@ -211,7 +213,7 @@ public class Pomodoro {
         statusLabel.setText("Pomodoro");
         secondsLeft = (Integer) focusBox.getSelectedItem() * 60;
         displayTime();
-        playSound(chime);
+        playSound(pomodoroAudio);
         mainPanel.setBackground(Color.decode("#7f2612"));
         dropDownPanel.setBackground(Color.decode("#4d170b"));
     }
@@ -219,7 +221,7 @@ public class Pomodoro {
     public void startBreak() {
         status++;
         statusLabel.setText("Break");
-        playSound(notif);
+        playSound(breakAudio);
         secondsLeft = (Integer) breakBox.getSelectedItem() * 60;
         mainPanel.setBackground(Color.decode("#3e4d18"));
         dropDownPanel.setBackground(Color.decode("#262f0f"));
@@ -233,7 +235,7 @@ public class Pomodoro {
         dropDownPanel.setBackground(Color.decode("#222540"));
         status = 0;
         displayTime();
-        playSound(success);
+        playSound(longBreakAudio);
     }
 
     public void reset() {
